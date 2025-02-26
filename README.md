@@ -2,7 +2,7 @@
 
 Script that queries the current schedule database and inserts the corresponding data in a new database.
 ## Prerequisites:
-Make sure you have ```python3``` and ```python3-venv``` installed on your machine.
+Make sure you have ```python3```, ```libpq-dev``` ```python3-venv``` installed on your machine.
 ## Instructions:
 1. Add a .env file with the following fields:
 ```
