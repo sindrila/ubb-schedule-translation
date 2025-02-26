@@ -1,3 +1,3 @@
 # Translation script
 
-Script that queries the current schedule database and insert the corresponding data to the new one.
+Script that queries the current schedule database and inserts the corresponding data in a new database.
