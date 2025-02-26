@@ -158,7 +158,6 @@ def delete_academic_specialization_locale_table_data(postgres_conn):
 def delete_class_instance_table_data(postgres_conn):
     cursor = postgres_conn.cursor()
     try:
-        # Has dependency in user_class_relation
         cursor.execute("DELETE FROM class_instance")
         postgres_conn.commit()
         logger.info("Class instance table data deleted successfully.")
@@ -169,6 +168,7 @@ def delete_class_instance_table_data(postgres_conn):
 def delete_user_class_relation_table_data(postgres_conn):
     cursor = postgres_conn.cursor()
     try:
+        delete_class_instance_table_data(postgres_conn)
         cursor.execute("DELETE FROM user_class_relation")
         postgres_conn.commit()
         logger.info("User class relation table data deleted successfully.")
@@ -178,3 +178,9 @@ def delete_user_class_relation_table_data(postgres_conn):
 
 def delete_all_data(postgres_conn):
     delete_user_class_relation_table_data(postgres_conn)
+    delete_day_definition_table_data(postgres_conn)
+    delete_academic_specialization_table_data(postgres_conn)
+    delete_course_code_name_table_data(postgres_conn)
+    delete_academic_rank_table_data(postgres_conn)
+    delete_room_table_data(postgres_conn)
+    delete_class_type_table_data(postgres_conn)

@@ -6,5 +6,6 @@ def get_postgres_connection():
         host=config.PG_HOST,
         user=config.PG_USER,
         password=config.PG_PASSWORD,
-        database=config.PG_DB
+        database=config.PG_DB,
+        port=config.PG_PORT,
     )

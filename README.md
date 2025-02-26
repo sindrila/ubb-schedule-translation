@@ -15,9 +15,8 @@ PG_HOST=****
 PG_USER=****
 PG_PASSWORD=****
 PG_DB=****
+PG_PORT=****
 
-# either true or false
-SHOULD_DELETE_OLD_DATA=true
 # either info or debug
 LOGGING_LEVEL=debug
 ```

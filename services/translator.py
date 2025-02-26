@@ -22,8 +22,7 @@ def translate_academic_ranks(mysql_conn, postgres_conn):
     mysql_cursor.execute("select * from orar2015.posturi")
     data = mysql_cursor.fetchall()
     try:
-        if config.SHOULD_DELETE_OLD_DATA:
-            delete_academic_rank_table_data(postgres_conn)
+        logger.info("This operation may take a while. Inserting academic ranks...")
         query = "INSERT INTO academic_rank (academic_rank_id, rank_name) VALUES (%s, %s)"
         for row in data:
             academic_rank_id = row.get("id")
@@ -31,13 +30,12 @@ def translate_academic_ranks(mysql_conn, postgres_conn):
             postgres_cursor.execute(query, (academic_rank_id, rank_name))
             logger.debug(f"Inserted: {academic_rank_id}, {rank_name}")
         postgres_conn.commit()
-        logger.info("Data inserted into PostgreSQL successfully.")
+        logger.info("Academic ranks data inserted into PostgreSQL successfully.")
     except Exception as err:
         logger.error(f"Error inserting data: {err}")
         postgres_conn.rollback()
 
 def translate_academic_rank_locale(mysql_conn, postgres_conn):
-    translate_academic_ranks(mysql_conn, postgres_conn)
     mysql_cursor = mysql_conn.cursor(dictionary=True)
     postgres_cursor = postgres_conn.cursor()
     mysql_cursor.execute("select * from orar2015.posturi")
@@ -45,8 +43,7 @@ def translate_academic_rank_locale(mysql_conn, postgres_conn):
     query = """INSERT INTO academic_rank_locale (academic_rank_id, language_tag, academic_rank_locale_name, academic_rank_abbreviation_locale_name)
                VALUES (%s, %s, %s, %s)"""
     try:
-        if config.SHOULD_DELETE_OLD_DATA:
-            delete_academic_rank_locale_table_data(postgres_conn)
+        logger.info("This operation may take a while. Inserting academic rank locale data...")
         for row in data:
             academic_rank_id = row.get("id")
             rank_name_romanian = row.get("denr")
@@ -66,15 +63,13 @@ def translate_academic_rank_locale(mysql_conn, postgres_conn):
         postgres_conn.rollback()
 
 def translate_teachers(mysql_conn, postgres_conn):
-    translate_academic_ranks(mysql_conn, postgres_conn)
     mysql_cursor = mysql_conn.cursor(dictionary=True)
     postgres_cursor = postgres_conn.cursor()
     mysql_cursor.execute("select * from cadre")
     data = mysql_cursor.fetchall()
     query = """INSERT INTO teacher (teacher_id, academic_rank_id, first_name, surname, code_name) VALUES (%s, %s, %s, %s, %s)"""
     try:
-        if config.SHOULD_DELETE_OLD_DATA:
-            delete_teacher_table_data(postgres_conn)
+        logger.info("This operation may take a while. Inserting teacher data...")
         for row in data:
             academic_rank_id = row.get("post")
             full_name = row.get("nume").split(' ', 1)
@@ -95,8 +90,7 @@ def translate_class_types(mysql_conn, postgres_conn):
     # Static insertion; no MySQL data required.
     postgres_cursor = postgres_conn.cursor()
     try:
-        if config.SHOULD_DELETE_OLD_DATA:
-            delete_class_type_table_data(postgres_conn)
+        logger.info("This operation may take a while. Inserting class types and locales...")
         class_type_query = "INSERT INTO class_type (class_type_id, class_type) VALUES (%s, %s)"
         data_class_type = [(1, 'Curs'), (2, 'Seminar'), (3, 'Laborator')]
         for row in data_class_type:
@@ -125,8 +119,7 @@ def translate_course_code_names_and_instances(mysql_conn, postgres_conn):
     postgres_cursor = postgres_conn.cursor()
     last_course_name = ''
     try:
-        if config.SHOULD_DELETE_OLD_DATA:
-            delete_course_code_name_table_data(postgres_conn)
+        logger.info("This operation may take a while. Inserting course code names and instances...")
         mysql_cursor.execute("SELECT * FROM disc")
         data = mysql_cursor.fetchall()
         course_code_name_query = """INSERT INTO course_code_name (course_codename_id, course_name, course_name_abbreviaton)
@@ -158,14 +151,13 @@ def translate_course_code_names_and_instances(mysql_conn, postgres_conn):
 def translate_formations(mysql_conn, postgres_conn):
     mysql_cursor = mysql_conn.cursor(dictionary=True)
     postgres_cursor = postgres_conn.cursor()
-    if config.SHOULD_DELETE_OLD_DATA:
-        delete_formation_table_data(postgres_conn)
     mysql_cursor.execute("SELECT * FROM formatii")
     data = mysql_cursor.fetchall()
     formation_query = """INSERT INTO formation
         (formation_id, code, components, formation_level, year, academic_specialization_id)
         VALUES (%s, %s, %s, %s, %s, %s)"""
     try:
+        logger.info("This operation may take a while. Inserting formations...")
         for row in data:
             code = row.get("cod")
             formation_id = str(uuid.uuid5(uuid.NAMESPACE_URL, name=str(code)))
@@ -185,12 +177,11 @@ def translate_formations(mysql_conn, postgres_conn):
 def translate_rooms(mysql_conn, postgres_conn):
     mysql_cursor = mysql_conn.cursor(dictionary=True)
     postgres_cursor = postgres_conn.cursor()
-    if config.SHOULD_DELETE_OLD_DATA:
-        delete_room_table_data(postgres_conn)
     mysql_cursor.execute("SELECT * FROM sali")
     data = mysql_cursor.fetchall()
     room_query = "INSERT INTO room (room_id, name, address) VALUES (%s, %s, %s)"
     try:
+        logger.info("This operation may take a while. Inserting rooms...")
         for row in data:
             room_id = row.get("id")
             code = row.get("cod")
@@ -207,13 +198,12 @@ def translate_rooms(mysql_conn, postgres_conn):
 def translate_day_definitions_and_localization(mysql_conn, postgres_conn):
     mysql_cursor = mysql_conn.cursor(dictionary=True)
     postgres_cursor = postgres_conn.cursor()
-    if config.SHOULD_DELETE_OLD_DATA:
-        delete_day_definition_table_data(postgres_conn)
     mysql_cursor.execute("SELECT * FROM zile")
     data = mysql_cursor.fetchall()
     day_query = "INSERT INTO day_definition (day_definition_id, day_name) VALUES (%s, %s)"
     day_localized_query = "INSERT INTO day_definition_locale (day_definition_id, language_tag, day_name_locale) VALUES (%s, %s, %s)"
     try:
+        logger.info("This operation may take a while. Inserting day definitions...")
         for row in data:
             day_id = row.get("id")
             day_code = row.get("cod")
@@ -231,8 +221,6 @@ def translate_day_definitions_and_localization(mysql_conn, postgres_conn):
 def translate_academic_specializations_and_localization(mysql_conn, postgres_conn):
     mysql_cursor = mysql_conn.cursor(dictionary=True)
     postgres_cursor = postgres_conn.cursor()
-    if config.SHOULD_DELETE_OLD_DATA:
-        delete_academic_specialization_table_data(postgres_conn)
     mysql_cursor.execute("SELECT * FROM specorar")
     data = mysql_cursor.fetchall()
     academic_specialization_query = """INSERT INTO academic_specialization
@@ -242,6 +230,7 @@ def translate_academic_specializations_and_localization(mysql_conn, postgres_con
         (academic_specialization_id, language_tag, level, name, name_abbreviated)
         VALUES (%s, %s, %s, %s, %s)"""
     try:
+        logger.info("This operation may take a while. Inserting academic specializations...")
         for row in data:
             academic_specialization_id = row.get("id")
             internal_name = row.get("denr")
@@ -263,8 +252,6 @@ def translate_class_instances(mysql_conn, postgres_conn):
     mysql_cursor = mysql_conn.cursor(dictionary=True)
     postgres_cursor = postgres_conn.cursor()
 
-    if config.SHOULD_DELETE_OLD_DATA:
-        delete_class_instance_table_data(postgres_conn)
     mysql_cursor.execute("SELECT * FROM repart")
     data = mysql_cursor.fetchall()
 
