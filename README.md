@@ -1,7 +1,8 @@
 # Translation script
 
 Script that queries the current schedule database and inserts the corresponding data in a new database.
-Add a .env file with the following fields:
+Instructions: 
+1. Add a .env file with the following fields:
 ```
 MYSQL_HOST=****
 MYSQL_USER=****
@@ -17,5 +18,5 @@ PG_DB=****
 SHOULD_DELETE_OLD_DATA=true
 # either info or debug
 LOGGING_LEVEL=debug
-
 ```
+2. Run ./setup.sh
